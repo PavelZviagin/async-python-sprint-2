@@ -7,10 +7,11 @@ from loguru import logger
 
 from job import Job, JobStatusEnum
 from schemas import JobListSchema
+from storage import Storage
 
 
 class Scheduler(Thread):
-    def __init__(self, storage, pool_size=10):
+    def __init__(self, storage: Storage, pool_size: int = 10):
         super().__init__()
         self.pool_size = pool_size
         self.jobs = []
@@ -41,7 +42,7 @@ class Scheduler(Thread):
             self.__queue.put(task)
 
     @staticmethod
-    def _check_dependency_error(task: Job):
+    def _check_dependency_error(task: Job) -> bool:
         if task.dependencies:
             return any(dependency.status == JobStatusEnum.ERROR
                        for dependency in task.dependencies)
@@ -79,14 +80,14 @@ class Scheduler(Thread):
             self.schedule(task)
 
     @staticmethod
-    def _check_start_time(task: Job):
+    def _check_start_time(task: Job) -> bool:
         if task.start_at > datetime.datetime.now():
             return False
 
         return True
 
     @staticmethod
-    def _check_working_time(task: Job):
+    def _check_working_time(task: Job) -> bool:
         if task.max_working_time == -1 or not task.working_time:
             return True
 
@@ -96,7 +97,7 @@ class Scheduler(Thread):
         return True
 
     @staticmethod
-    def _check_dependency(task: Job):
+    def _check_dependency(task: Job) -> bool:
         if task.dependencies:
             return all(dependency.status == JobStatusEnum.COMPLETED
                        for dependency in task.dependencies)
@@ -120,7 +121,7 @@ class Scheduler(Thread):
         self.start()
 
     @staticmethod
-    def _load_schema_from_file(file_name: str = 'data.json'):
+    def _load_schema_from_file(file_name: str = 'data.json') -> JobListSchema:
         with open(file_name, 'r') as file:
             schema = JobListSchema.model_validate_json(file.read())
         return schema

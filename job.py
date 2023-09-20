@@ -70,7 +70,7 @@ class Job:
         self.status = JobStatusEnum.WAITING
 
     @staticmethod
-    def from_schema(data: JobSchema, storage: Storage):
+    def from_schema(data: JobSchema, storage: Storage) -> "Job":
         job = Job(
             id=data.id,
             func=storage.get_function(data.name),
