@@ -25,7 +25,7 @@ class Job:
                  dependencies: list["Job"] = None,
                  args: tuple = None,
                  kwargs: dict = None,
-                 id=None):
+                 task_id=None):
         self.args = args or ()
         self.kwargs = kwargs or {}
         self.__coroutine = func(*self.args, **self.kwargs)
@@ -36,7 +36,7 @@ class Job:
         self.working_time = None
         self.status = JobStatusEnum.WAITING
         self.results = []
-        self.id = id if id else uuid.uuid4()
+        self.task_id = task_id if task_id else uuid.uuid4()
         self.name = func.__name__
 
     def _run(self):
@@ -72,7 +72,7 @@ class Job:
     @staticmethod
     def from_schema(data: JobSchema, storage: Storage) -> "Job":
         job = Job(
-            id=data.id,
+            task_id=data.task_id,
             func=storage.get_function(data.name),
             start_at=data.start_at,
             max_working_time=int(data.max_working_time),

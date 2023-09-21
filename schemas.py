@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class JobSchema(BaseModel):
-    id: uuid.UUID
+    task_id: uuid.UUID
     name: str
     status: str
     max_working_time: float

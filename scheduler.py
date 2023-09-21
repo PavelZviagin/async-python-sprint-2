@@ -1,4 +1,5 @@
 import datetime
+import os
 from queue import Queue
 from threading import Thread
 from time import time
@@ -23,9 +24,9 @@ class Scheduler(Thread):
         if task.status not in [JobStatusEnum.WAITING, JobStatusEnum.RUNNING]:
             return
 
-        job_ids = [job.id for job in self.jobs]
+        job_ids = [job.task_id for job in self.jobs]
 
-        if task.id in job_ids:
+        if task.task_id in job_ids:
             return
 
         if self._check_dependency_error(task):
@@ -128,6 +129,10 @@ class Scheduler(Thread):
 
     @staticmethod
     def _save_schema_to_file(schema: JobListSchema, file_name: str = 'data.json'):
+        directory = os.path.dirname(file_name)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory)
+
         with open(file_name, 'w') as file:
             file.write(schema.model_dump_json())
 
